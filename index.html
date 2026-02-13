@@ -1319,8 +1319,9 @@
                     
                     <!-- Centered Video -->
                     <div class="video-container">
-                        <video autoplay loop muted playsinline class="celebration-video">
+                        <video autoplay loop muted playsinline class="celebration-video" id="celebration-video">
                             <source src="happi.mp4" type="video/mp4">
+                            Your browser illa support this video tag
                         </video>
                     </div>
                     
@@ -1661,6 +1662,7 @@
             
             setTimeout(() => {
                 goToSlide(state.totalSlides);
+                setTimeout(ensureVideoPlays, 500);
                 
                 // Hide navigation
                 elements.navDots.style.transition = 'opacity 0.3s ease';
@@ -1746,6 +1748,33 @@
         window.addEventListener('load', () => {
             elements.dateInput.focus();
         });
+        function ensureVideoPlays() {
+            const video = document.getElementById('celebrationVideo');
+            if (video) {
+                // Try to play the video
+                const playPromise = video.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        // Auto-play was prevented, try playing on user interaction
+                        console.log("Autoplay prevented, will play on interaction");
+                        
+                        // Play when user clicks anywhere on the final slide
+                        document.addEventListener('click', function playOnClick() {
+                            video.play();
+                            document.removeEventListener('click', playOnClick);
+                        }, { once: true });
+                        
+                        // Also try on touch for mobile
+                        document.addEventListener('touchstart', function playOnTouch() {
+                            video.play();
+                            document.removeEventListener('touchstart', playOnTouch);
+                        }, { once: true });
+                    });
+                }
+            }
+        }
+
     </script>
 </body>
 </html>
